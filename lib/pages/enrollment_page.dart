@@ -47,11 +47,11 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
     selectedProductId = null;
   }
 
-  bool _validateFields() {
+  bool _validateFields(BuildContext dialogContext) {
     if (selectedStudentId == null ||
         selectedCourseId == null ||
         selectedProductId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(dialogContext).showSnackBar(
         const SnackBar(
           content: Text('Selecione todos os campos'),
           backgroundColor: _purpleDark,
@@ -84,8 +84,8 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
     _clearSelections();
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -99,6 +99,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
               children: [
                 DropdownButtonFormField<int>(
                   value: selectedStudentId,
+                  isExpanded: true,
                   decoration: _dropdownDecoration(
                     'Aluno',
                     Icons.person_outline,
@@ -117,6 +118,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
                   value: selectedCourseId,
+                  isExpanded: true,
                   decoration: _dropdownDecoration(
                     'Curso',
                     Icons.school_outlined,
@@ -135,6 +137,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
                   value: selectedProductId,
+                  isExpanded: true,
                   decoration: _dropdownDecoration(
                     'Material',
                     Icons.book_outlined,
@@ -157,14 +160,18 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
             TextButton(
               onPressed: () {
                 _clearSelections();
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
               },
               style: TextButton.styleFrom(foregroundColor: _purple),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () async {
-                if (!_validateFields()) return;
+                if (!_validateFields(dialogContext)) return;
+
+                final messenger = ScaffoldMessenger.of(context);
+                final navigator = Navigator.of(dialogContext);
+
                 await controller.addEnrollment(
                   Enrollment(
                     studentId: selectedStudentId!,
@@ -174,16 +181,14 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                   ),
                 );
                 _clearSelections();
-                if (mounted) {
-                  Navigator.pop(context);
-                  await loadAll();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Matrícula cadastrada com sucesso!'),
-                      backgroundColor: _purpleDark,
-                    ),
-                  );
-                }
+                navigator.pop();
+                await loadAll();
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Matrícula cadastrada com sucesso!'),
+                    backgroundColor: _purpleDark,
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
@@ -207,8 +212,8 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -222,6 +227,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
               children: [
                 DropdownButtonFormField<int>(
                   value: selectedStudentId,
+                  isExpanded: true,
                   decoration: _dropdownDecoration(
                     'Aluno',
                     Icons.person_outline,
@@ -240,6 +246,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
                   value: selectedCourseId,
+                  isExpanded: true,
                   decoration: _dropdownDecoration(
                     'Curso',
                     Icons.school_outlined,
@@ -258,6 +265,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
                   value: selectedProductId,
+                  isExpanded: true,
                   decoration: _dropdownDecoration(
                     'Material',
                     Icons.book_outlined,
@@ -280,14 +288,18 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
             TextButton(
               onPressed: () {
                 _clearSelections();
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
               },
               style: TextButton.styleFrom(foregroundColor: _purple),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () async {
-                if (!_validateFields()) return;
+                if (!_validateFields(dialogContext)) return;
+
+                final messenger = ScaffoldMessenger.of(context);
+                final navigator = Navigator.of(dialogContext);
+
                 await controller.updateEnrollment(
                   Enrollment(
                     enrollmentId: enrollment.enrollmentId,
@@ -298,16 +310,14 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                   ),
                 );
                 _clearSelections();
-                if (mounted) {
-                  Navigator.pop(context);
-                  await loadAll();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Matrícula atualizada com sucesso!'),
-                      backgroundColor: _purpleDark,
-                    ),
-                  );
-                }
+                navigator.pop();
+                await loadAll();
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Matrícula atualizada com sucesso!'),
+                    backgroundColor: _purpleDark,
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
@@ -363,16 +373,15 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
     );
 
     if (confirm == true) {
+      final messenger = ScaffoldMessenger.of(context);
       await controller.deleteEnrollment(enrollment.enrollmentId!);
       await loadAll();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Matrícula removida'),
-            backgroundColor: _purpleDark,
-          ),
-        );
-      }
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Matrícula removida'),
+          backgroundColor: _purpleDark,
+        ),
+      );
     }
   }
 
