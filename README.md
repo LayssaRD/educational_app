@@ -1,4 +1,3 @@
-```markdown
 # Educational Products App
 
 Aplicação mobile desenvolvida em Flutter para gerenciamento de produtos e materiais educacionais, com persistência local em SQLite e sincronização em nuvem via Supabase.
@@ -82,4 +81,3 @@ flutter run
 ## Autor
 
 Layssa Rodrigues Alves — UTFPR
-```
