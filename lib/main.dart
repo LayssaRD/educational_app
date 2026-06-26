@@ -1,11 +1,34 @@
+import 'package:educational_products_app/features/student/presentation/pages/student_list_page.dart';
 import 'package:flutter/material.dart';
-import 'pages/educational_product_page.dart';
-import 'pages/course_page.dart';
-import 'pages/student_page.dart';
-import 'pages/enrollment_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'features/educational_product/presentation/pages/educational_product_list_page.dart';
+import 'features/course/presentation/pages/course_list_page.dart';
+import 'features/enrollment/presentation/pages/enrollment_list_page.dart';
+import 'core/supabase/supabase_config.dart';
+import 'core/sync/sync_service.dart';
+import 'core/database/app_database.dart';
+import 'features/course/data/datasources/course_remote_datasource.dart';
+import 'features/educational_product/data/datasources/educational_product_remote_datasource.dart';
+import 'features/student/data/datasources/student_remote_datasource.dart';
+import 'features/enrollment/data/datasources/enrollment_remote_datasource.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: '.env');
+  await SupabaseConfig.initialize();
+
+  final client = SupabaseConfig.client;
+  final appDatabase = AppDatabase();
+
+  SyncService(
+    database: appDatabase,
+    courseRemote: CourseRemoteDataSource(client),
+    productRemote: EducationalProductRemoteDataSource(client),
+    studentRemote: StudentRemoteDataSource(client),
+    enrollmentRemote: EnrollmentRemoteDataSource(client),
+  ).syncAll();
+
   runApp(const EducationalProductApp());
 }
 
@@ -40,13 +63,12 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   static const _purple = Color(0xFF534AB7);
-  static const _purpleLight = Color(0xFFEEEDFE);
 
   final List<Widget> _pages = const [
-    EducationalProductPage(),
-    CoursePage(),
-    StudentPage(),
-    EnrollmentPage(),
+    EducationalProductListPage(),
+    CourseListPage(),
+    StudentListPage(),
+    EnrollmentListPage(),
   ];
 
   @override
